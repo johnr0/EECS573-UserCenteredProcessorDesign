@@ -3,8 +3,13 @@
 // TODO 3 : Scheduling
 
 import React, { Component } from 'react';
+import { createContainer } from 'meteor/react-meteor-data';
+import {Maps} from '../../../imports/collections/data'
 import d3 from 'd3';
 class Simulation extends Component{
+    // time out
+    timeout = 300
+    cur_time = this.timeout
     // battery amount
     battery = 10
     // power efficiency (battery amount) / (minute)
@@ -29,20 +34,33 @@ class Simulation extends Component{
             accomplished:0,
         },
         {
-            name: 'note_taking_classA',
+            name: 'Task_A',
             energy_usage: 2,
-            position: 'classA',
+            position: 'A',
+            time: 90,
+            accomplished:0,
+        },
+        {
+            name: 'Task_B',
+            energy_usage: 2,
+            position: 'B',
+            time: 90,
+            accomplished:0,
+        },
+        {
+            name: 'Task_C',
+            energy_usage: 2,
+            position: 'C',
             time: 90,
             accomplished:0,
         },
     ]
 
     charging_speed = 0.5
-    charging_stations=[
-        [1,2],
-        [10,5],
-    ]
+
     charging = false
+
+    task=undefined
     //width and height of the grid world
     grid_width = 48
     grid_height = 27
@@ -75,6 +93,8 @@ class Simulation extends Component{
     }
 
     updateBattery(){
+        this.timeout += 0.05*3
+
         // charging?
         if(this.charging){
             var next_charge = this.state.cur_battery+0.05*this.charging_speed
@@ -85,7 +105,6 @@ class Simulation extends Component{
 //            this.setState({'cur_battery': next_charge})
         }
         if(this.state.cur_battery>0){
-            console.log('heh')
             var battery_diff = this.idle // /this.power_efficiency*50/1000
             this.state.activated_task.map(idx => {
             this.energy_task_list[idx].accomplished = this.energy_task_list[idx].accomplished+0.05
@@ -112,6 +131,14 @@ class Simulation extends Component{
                     var task_index = this.state.activated_task.indexOf(event.keyCode-49)
                     if(task_index==-1){
                         this.state.activated_task.push(event.keyCode-49)
+                        // when the task is related to non-playing tasks
+                        /*if(this.energy_task_list[event.keyCode-49].position!=false){
+                            for(var i in this.state.activated_task){
+                                if(this.energy_task_list[i].position==false){
+                                    this.state.activated_task.splice(i, 1)
+                                }
+                            }
+                        }*/
                     }else{
                         this.state.activated_task.splice(task_index, 1)
                     }
@@ -126,24 +153,38 @@ class Simulation extends Component{
         setTimeout(this.agent_move_handle.bind(this, event),500)
         
     }
+
+    wall_check(x, y){
+        console.log(this.props.map)
+        for(var i in this.props.map.walls){
+            var xw = this.props.map.walls[i][0]
+            var yw = this.props.map.walls[i][1]
+
+            if(xw==x && yw==y){
+                return false
+            }
+        }
+        return true
+    }
+
     agent_move_handle(event){
-        if(event.keyCode==37){
-            if(this.state.agentx>0)
+       if(event.keyCode==37){
+            if(this.state.agentx>0 && this.wall_check(this.state.agentx-1,this.state.agenty))
                 this.setState({'agentx':this.state.agentx-1})
         }else if(event.keyCode==38){
-            if(this.state.agenty>0)
+            if(this.state.agenty>0 && this.wall_check(this.state.agentx,this.state.agenty-1))
                 this.setState({'agenty':this.state.agenty-1})
         }else if(event.keyCode==39){
-            if(this.state.agentx<this.grid_width-1)
+            if(this.state.agentx<this.grid_width-1 && this.wall_check(this.state.agentx+1,this.state.agenty))
                 this.setState({'agentx':this.state.agentx+1})
         }else if(event.keyCode==40){
-            if(this.state.agenty<this.grid_height-1)
+            if(this.state.agenty<this.grid_height-1 && this.wall_check(this.state.agentx,this.state.agenty+1))
                 this.setState({'agenty':this.state.agenty+1})
         }
         this.moving=false
         var docharge=false
         // check charging
-        this.charging_stations.map(station=>{
+        this.props.map.charger.map(station=>{
             console.log(this.state.agentx, station[0], this.state.agenty, station[1])
             if(this.state.agentx==station[0] && this.state.agenty==station[1]){
                 console.log('charginv')
@@ -152,6 +193,35 @@ class Simulation extends Component{
         })
         this.charging=docharge
 
+        this.task=undefined
+        // check if in task area
+        this.props.map.taskzone.map(tz=>{
+            if(this.state.agentx==tz.pos[0] && this.state.agenty==tz.pos[1]){
+                console.log(tz.classname)
+                this.task = tz.classname;
+            }
+        })
+        var topop=[]
+        if(this.task!=undefined){
+            //pop false task
+            for(var i in this.state.activated_task){
+                if(this.energy_task_list[this.state.activated_task[i]].position==false){
+                    topop.push(i)
+                }
+            }
+        }else{
+            //pop non-false task
+            for(var i in this.state.activated_task){
+                if(this.energy_task_list[this.state.activated_task[i]].position!=false){
+                    topop.push(i)
+                }
+            }
+        }
+        topop.sort(function(a,b){ return a - b; })
+        for (var i = topop.length -1; i >= 0; i--){
+            console.log(topop[i])
+            this.state.activated_task.splice(topop[i],1);
+        }
         
     }
 
@@ -159,7 +229,7 @@ class Simulation extends Component{
         return this.energy_task_list.map((task, index) => {
             return (
                 <li key={task.name}>
-                    <span className={"btn "+(this.state.activated_task.indexOf(index)!=-1 ? 'activated':'deactivated')+" "+(this.state.cur_battery>0 ? '':'disabled')}>
+                    <span className={"btn "+(this.state.activated_task.indexOf(index)!=-1 ? 'activated':'deactivated')+" "+(this.state.cur_battery>0 && ((task.position!=false && this.task==task.position)||(task.position==false && this.task==undefined)) ? '':'disabled')}>
                     {index+1} {task.name}</span>
                     <div className="progress">
                         <div className="determinate" style={{width:(this.energy_task_list[index].accomplished/this.energy_task_list[index].time*100).toString()+"%"}}></div>
@@ -170,48 +240,92 @@ class Simulation extends Component{
     }
 
     renderChargeStation(){
-        return this.charging_stations.map((station,index) => {
-            return (<rect key={index} x={(station[0])*this.state.totalwidth/this.grid_width} 
-            y={(station[1])*this.state.totalheight/this.grid_height}
-            width={24}
-            height={24}
-            fill={'yellow'}>
+        if(this.props.map!=undefined){
+            return this.props.map.charger.map((station,index) => {
+                return (<circle key={index} cx={(station[0]+0.5)*this.state.totalwidth/this.grid_width} 
+                cy={(station[1]+0.5)*this.state.totalheight/this.grid_height}
+                r={this.state.totalheight/this.grid_height*0.4}
+                height={15}
+                fill={'yellow'}>
 
-            </rect>)
-        })
+                </circle>)
+            })
+        }
+    }
+
+    renderWall(){
+        if(this.props.map!=undefined){
+            return this.props.map.walls.map((wall, index) => {
+                return (<circle key={index} cx={(wall[0]+0.5)*this.state.totalwidth/this.grid_width} 
+                cy={(wall[1]+0.5)*this.state.totalheight/this.grid_height}
+                r={this.state.totalheight/this.grid_height*0.5}
+                fill={'black'}>
+
+                </circle>)
+            })
+        }
+    }
+
+    renderTaskZone(){
+        if(this.props.map!=undefined){
+            return this.props.map.taskzone.map((tz, index) => {
+                return (
+                <g key={index}>
+                    <circle cx={(tz.pos[0]+0.5)*this.state.totalwidth/this.grid_width} 
+                    cy={(tz.pos[1]+0.5)*this.state.totalheight/this.grid_height}
+                    r={this.state.totalheight/this.grid_height*0.5}
+                    fill={'#9999ff'}>
+                    </circle>
+                    <text x={(tz.pos[0]+0.25)*this.state.totalwidth/this.grid_width} 
+                    y={(tz.pos[1]+0.5)*this.state.totalheight/this.grid_height} fill='white'
+                    fontSize={(this.state.totalheight/this.grid_height*0.6).toString()+"px"}>{tz.classname}</text>
+                </g>)
+            })
+        }
     }
 
     render() {
         return (
             <div>
                 <h2>Simulation</h2>
-                <div className="gridworld">
-                    <div>Battery Amount</div>
-                    <div className="progress">
-                        
-                        <div className="determinate" style={{width:(this.state.cur_battery/this.battery*100).toString()+"%"}}></div>
-                    </div>
-                    <div>Task List</div>
-                    <ul>
-                        {this.renderTaskList()}
-                    </ul>
-                    <svg className="svg-container" width={100} height={50} > 
-                        <g className='grids'>
+                <div className="">
+                    <div className='inline-blocks gridworld'>
+                        <svg className="svg-container" width={70} height={35} > 
+                        <g className='grids'>  
+                            {this.renderWall()}
+                            {this.renderTaskZone()}
                             {this.renderChargeStation()}
                         </g>
                         <circle className="agent"
                         cx={(this.state.agentx+0.5)*this.state.totalwidth/this.grid_width}
                         cy={(this.state.agenty+0.5)*this.state.totalheight/this.grid_height}
                         key={`own-control`}
-                        fill={'#6290db'}
-                        opacity={0.5}
-                        r={12}
+                        fill={'green'}
+                        r={this.state.totalheight/this.grid_height*0.3}
                         />                    
-                    </svg>
+                        </svg>
+                    </div>
+                    <div className='inline-blocks SApanel'>
+                        <div>Remaining Time</div>
+                        <div className="progress">
+                            <div className="determinate" style={{width:(this.cur_time/this.timeout*100).toString()+"%"}}></div>
+                        </div>
+                        <div>Battery Amount</div>
+                        <div className="progress">
+                            <div className="determinate" style={{width:(this.state.cur_battery/this.battery*100).toString()+"%"}}></div>
+                        </div>
+                        <div>Task List</div>
+                        <ul>
+                            {this.renderTaskList()}
+                        </ul>
+                    </div>
                 </div>
             </div>
         )
     }
 }
-
-export default Simulation
+export default createContainer((props) => {
+    // 
+    Meteor.subscribe('map')
+    return {map: Maps.find({name:'main'}).fetch()[0]}
+}, Simulation); 

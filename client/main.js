@@ -7,6 +7,7 @@ import Instruction from './components/instruction/instruction'
 import SelfEvaluation from './components/self_evaluation/self_evaluation'
 import Simulation from './components/simulation/simulation'
 import Tutorial from './components/tutorial/tutorial'
+import MapMaker from './components/simulation/mapmaker'
 
 const routes = (
   <BrowserRouter>
@@ -15,6 +16,7 @@ const routes = (
         <Route path='/instruction' component={Instruction}></Route>
         <Route path='/tutorial' component={Tutorial}></Route>
         <Route path='/simulation/:workerId/:assignmentId/:hitId' component={Simulation}></Route>
+        <Route path='/mapmaker' component={MapMaker}></Route>
         <Route path='/self_evaluation/:workerId/:assignmentId/:hitId' component={SelfEvaluation}></Route>
       </Switch>
     </div>
