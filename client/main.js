@@ -6,7 +6,7 @@ import { Route, Switch, BrowserRouter } from 'react-router-dom';
 import Instruction from './components/instruction/instruction'
 import SelfEvaluation from './components/self_evaluation/self_evaluation'
 import Simulation from './components/simulation/simulation'
-import Tutorial from './components/tutorial/tutorial'
+import Survey from './components/survey/survey'
 import MapMaker from './components/simulation/mapmaker'
 
 const routes = (
@@ -14,7 +14,7 @@ const routes = (
     <div>
       <Switch>
         <Route path='/instruction' component={Instruction}></Route>
-        <Route path='/tutorial' component={Tutorial}></Route>
+        <Route path='/survey/:workerId/:assignmentId/:hitId' component={Survey}></Route>
         <Route path='/simulation/:workerId/:assignmentId/:hitId' component={Simulation}></Route>
         <Route path='/mapmaker' component={MapMaker}></Route>
         <Route path='/self_evaluation/:workerId/:assignmentId/:hitId' component={SelfEvaluation}></Route>

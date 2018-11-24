@@ -26,3 +26,11 @@
     vertical-align: top;
     width: 30%;
 }
+
+.Invisible{
+    display: none;
+}
+
+label{
+    margin-right: 10px;
+}

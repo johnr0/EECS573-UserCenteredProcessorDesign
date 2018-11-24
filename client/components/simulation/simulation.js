@@ -4,21 +4,25 @@
 
 import React, { Component } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
-import {Maps} from '../../../imports/collections/data'
+import {Maps, SimulationTrial} from '../../../imports/collections/data'
 import d3 from 'd3';
+import {Link} from 'react-router-dom';
+import {HTTP} from 'meteor/http';
+
 class Simulation extends Component{
     // time out
     timeout = 300
     cur_time = this.timeout
+
     // battery amount
     battery = 10
     // power efficiency (battery amount) / (minute)
-    power_efficiency = 10
+    power_efficiency = 7
     // idle energy usage
     idle = 1
     // task list
         // each task list is composed of name, energy_usage, position(it needs to be done), time(required for the task, seconds)
-    energy_task_list = [
+    energy_task_list = undefined/* [
         {
             name: 'music',
             energy_usage: 1.5,
@@ -54,7 +58,7 @@ class Simulation extends Component{
             time: 90,
             accomplished:0,
         },
-    ]
+    ]*/
 
     charging_speed = 0.5
 
@@ -69,7 +73,7 @@ class Simulation extends Component{
         totalheight:0,
         agentx: 3,
         agenty: 2,
-
+        end:false,
         cur_battery: 10,
 
         activated_task:[],
@@ -78,14 +82,21 @@ class Simulation extends Component{
     //status whether the agent is moving or not
     moving = false
     
+    //usage log 
+    charge_count = 0
 
     componentDidMount(){
+        const {workerId, assignmentId, hitId} = this.props.match.params
+        var _this = this
+        Meteor.call('getArm', workerId, assignmentId, hitId, function(error, result){
+            _this.power_efficiency = result
+        })
         this.setState({'cur_battery': this.battery})
         this.setState({'totalwidth': parseInt(d3.select('.svg-container').style('width'))})
         this.setState({'totalheight': parseInt(d3.select('.svg-container').style('height'))})
         var _this=this
         window.setInterval(this.updateBattery.bind(this), 50)
-
+        
         document.body.addEventListener('keydown', function(event) {
             _this.handleKeyPress(event)
             
@@ -93,7 +104,8 @@ class Simulation extends Component{
     }
 
     updateBattery(){
-        this.timeout += 0.05*3
+        console.log(this.power_efficiency)
+        this.cur_time -= 0.1
 
         // charging?
         if(this.charging){
@@ -107,7 +119,7 @@ class Simulation extends Component{
         if(this.state.cur_battery>0){
             var battery_diff = this.idle // /this.power_efficiency*50/1000
             this.state.activated_task.map(idx => {
-            this.energy_task_list[idx].accomplished = this.energy_task_list[idx].accomplished+0.05
+            this.energy_task_list[idx].accomplished = this.energy_task_list[idx].accomplished+1/this.power_efficiency
             battery_diff = battery_diff + this.energy_task_list[idx].energy_usage 
         })
         this.setState({'cur_battery': this.state.cur_battery - battery_diff/this.power_efficiency*50/1000})
@@ -116,6 +128,19 @@ class Simulation extends Component{
             this.setState({'cur_battery': this.state.cur_battery})
         }
         
+        if (this.cur_time<=0 && this.state.end==false){
+            console.log('end')
+            this.EndTheSimulation()
+        }
+    }
+
+    EndTheSimulation(){
+        this.setState({end: true});
+        var elClone = document.body.cloneNode(true);
+        document.body.parentNode.replaceChild(elClone, document.body);
+        window.clearInterval(50)
+        this.SimulationResultSend()
+        alert("Simulation ends now!")
     }
     
     handleKeyPress(event){
@@ -130,14 +155,20 @@ class Simulation extends Component{
                 if(this.state.cur_battery>0){
                     var task_index = this.state.activated_task.indexOf(event.keyCode-49)
                     if(task_index==-1){
-                        this.state.activated_task.push(event.keyCode-49)
+                        console.log(this.task)
+                        if(this.energy_task_list[event.keyCode-49].position==false && this.task==undefined){
+                            return this.state.activated_task.push(event.keyCode-49)
+                        }
+                        if(this.energy_task_list[event.keyCode-49].position!=false && this.energy_task_list[event.keyCode-49].position==this.task){
+                            return this.state.activated_task.push(event.keyCode-49)
+                        }
+
+                        
                         // when the task is related to non-playing tasks
-                        /*if(this.energy_task_list[event.keyCode-49].position!=false){
-                            for(var i in this.state.activated_task){
-                                if(this.energy_task_list[i].position==false){
+                        /*if(this.energy_task_list[event.keyCode-49].position!=this.task){
+                                if(this.energy_task_list[i].position!=this.task){
                                     this.state.activated_task.splice(i, 1)
                                 }
-                            }
                         }*/
                     }else{
                         this.state.activated_task.splice(task_index, 1)
@@ -189,6 +220,7 @@ class Simulation extends Component{
             if(this.state.agentx==station[0] && this.state.agenty==station[1]){
                 console.log('charginv')
                 docharge=true
+                this.charge_count += 1
             }
         })
         this.charging=docharge
@@ -226,17 +258,30 @@ class Simulation extends Component{
     }
 
     renderTaskList(){
-        return this.energy_task_list.map((task, index) => {
-            return (
-                <li key={task.name}>
-                    <span className={"btn "+(this.state.activated_task.indexOf(index)!=-1 ? 'activated':'deactivated')+" "+(this.state.cur_battery>0 && ((task.position!=false && this.task==task.position)||(task.position==false && this.task==undefined)) ? '':'disabled')}>
-                    {index+1} {task.name}</span>
-                    <div className="progress">
-                        <div className="determinate" style={{width:(this.energy_task_list[index].accomplished/this.energy_task_list[index].time*100).toString()+"%"}}></div>
-                    </div>
-                </li>
-            )
-        })
+        if(this.props.trial!=undefined){
+            if(this.energy_task_list==undefined){
+                this.energy_task_list=[]
+                for(var i in this.props.trial.SurveyResult.tasklist){
+                    if(this.props.trial.SurveyResult.tasklist[i].time!=0){
+                        this.energy_task_list.push(this.props.trial.SurveyResult.tasklist[i])
+                    }
+                    
+                }
+                this.energy_task_list
+            }
+            return this.energy_task_list.map((task, index) => {
+                if(task.time!=0){
+                return (
+                    <li key={task.name}>
+                        <span className={"btn "+(this.state.activated_task.indexOf(index)!=-1 ? 'activated':'deactivated')+" "+(this.state.cur_battery>0 && ((task.position!=false && this.task==task.position)||(task.position==false && this.task==undefined)) ? '':'disabled')}>
+                        {index+1} {task.name}</span>
+                        <div className="progress">
+                            <div className="determinate" style={{width:(this.energy_task_list[index].accomplished/this.energy_task_list[index].time*100).toString()+"%"}}></div>
+                        </div>
+                    </li>
+                )}1
+            })
+        }
     }
 
     renderChargeStation(){
@@ -284,6 +329,13 @@ class Simulation extends Component{
         }
     }
 
+    SimulationResultSend(){
+        const {workerId, assignmentId, hitId} = this.props.match.params
+        console.log('hit')
+        Meteor.call('simulationtrial.updatechargecount', workerId, assignmentId, hitId, this.charge_count)
+        Meteor.call('simulationtrial.updatetaskresult', workerId, assignmentId, hitId, this.energy_task_list)
+    }
+
     render() {
         return (
             <div>
@@ -320,12 +372,19 @@ class Simulation extends Component{
                         </ul>
                     </div>
                 </div>
+                <div className={!this.state.end ? 'Invisible': ''} style={{"textAlign":"center"}}>
+                    <p>The simulation has ended :) Please proceed to the post survey!</p>
+                    <Link className="btn"
+                    to={"/self_evaluation/"+this.props.match.params.workerId+"/"+this.props.match.params.assignmentId+"/"+this.props.match.params.hitId+"/"+this.charge_count.toString()}>
+                    Proceed</Link>
+                </div>
             </div>
         )
     }
 }
 export default createContainer((props) => {
-    // 
+    const {workerId, assignmentId, hitId}=props.match.params
+    Meteor.subscribe('simulationtrial')
     Meteor.subscribe('map')
-    return {map: Maps.find({name:'main'}).fetch()[0]}
+    return {trial: SimulationTrial.findOne({workerId, assignmentId, hitId}), map: Maps.find({name:'main'}).fetch()[0]}
 }, Simulation); 
