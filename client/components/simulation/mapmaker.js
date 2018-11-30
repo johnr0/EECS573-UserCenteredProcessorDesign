@@ -31,7 +31,7 @@ class MapMaker extends Component{
     }
 
     currentRender(){
-        if(this.state.update_param==112){
+        if(this.state.update_param==1){
             return (<div>
                 updating walls...
             </div>)
@@ -141,6 +141,8 @@ class MapMaker extends Component{
     }
 
     render(){
+        console.log(this.width_list)
+        console.log(this.height_list)
         return (
             <div>
                 <h2>Map Making</h2>
