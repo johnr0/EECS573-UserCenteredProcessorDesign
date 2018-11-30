@@ -21,7 +21,7 @@ class Survey extends Component{
         music:false,
         video:false,
         'take/edit_photos_or_videos':false,
-        navigate_map:false,
+        text_or_email:false,
         check_calendar_or_notes:false,
     }
 
