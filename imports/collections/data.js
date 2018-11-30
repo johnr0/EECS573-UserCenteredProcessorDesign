@@ -189,7 +189,7 @@ Meteor.methods({
         data['params']= {'surveyresult':JSON.stringify(trial.SurveyResult)}
         if (Meteor.isServer) {
             this.unblock();
-            var returned= HTTP.call("POST", "http://127.0.0.1:5000/getarm", data);
+            var returned= HTTP.call("POST", "http://127.0.0.1:3529/getarm", data);
             return 10+3*(returned.data-1)
           }
     }
