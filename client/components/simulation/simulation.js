@@ -358,9 +358,9 @@ class Simulation extends Component{
                         </svg>
                     </div>
                     <div className='inline-blocks SApanel'>
-                        <div>Remaining Time</div>
+                        <div>Time of the day</div>
                         <div className="progress">
-                            <div className="determinate" style={{width:(this.cur_time/this.timeout*100).toString()+"%"}}></div>
+                            <div className="determinate" style={{width:((this.timeout-this.cur_time)/this.timeout*100).toString()+"%"}}></div>
                         </div>
                         <div>Battery Amount</div>
                         <div className="progress">
