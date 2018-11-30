@@ -15,6 +15,7 @@ class MapMaker extends Component{
     }
 
     componentDidMount(){
+        Meteor.call('maps.updatewall', [0,1])
         this.setState({'totalwidth': parseInt(d3.select('.svg-container').style('width'))})
         this.setState({'totalheight': parseInt(d3.select('.svg-container').style('height'))})
         var _this = this
