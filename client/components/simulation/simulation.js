@@ -273,7 +273,7 @@ class Simulation extends Component{
                 if(task.time!=0){
                 return (
                     <li key={task.name}>
-                        <span className={"btn "+(this.state.activated_task.indexOf(index)!=-1 ? 'activated':'deactivated')+" "+(this.state.cur_battery>0 && ((task.position!=false && this.task==task.position)||(task.position==false && this.task==undefined)) ? '':'disabled')}>
+                        <span className={"btn "+(this.state.activated_task.indexOf(index)!=-1 ? 'activated':'deactivated')+" "+(this.state.cur_battery>0 && ((task.position!=false && this.task==task.position)) ? '':'disabled')}>
                         {index+1} {task.name}</span>
                         <div className="progress">
                             <div className="determinate" style={{width:(this.energy_task_list[index].accomplished/this.energy_task_list[index].time*100).toString()+"%"}}></div>
