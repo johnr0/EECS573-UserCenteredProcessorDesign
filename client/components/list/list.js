@@ -21,6 +21,12 @@ class List extends Component{
                 <div className="collapsible-body">
                     <ul>
                         <li>
+                            Choosen Arm: {ele.Arm}
+                        </li>
+                        <li>
+                            Success Rate: {ele.SimulationResult.successRate}
+                        </li>
+                        <li>
                             Gender: {ele.SurveyResult.gender}
                         </li>
                         <li>

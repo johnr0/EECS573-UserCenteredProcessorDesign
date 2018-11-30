@@ -64,6 +64,7 @@ Meteor.methods({
 
                     }
                 },
+                Arm: -1,
                 SimulationResult: {
                     successRate:0,
                     batterySatisfaction:0,
@@ -109,7 +110,7 @@ Meteor.methods({
         for(var i in energy_task_result){
             var id = energy_task_result[i]['name']
             total_time_sum += energy_task_result[i]['time']
-            total_accomplished_sum += energy_task_result[i]['accomplished']
+            total_accomplished_sum += Math.min(energy_task_result[i]['accomplished'], energy_task_result[i]['time'])
             var route = 'SurveyResult.tasklist.'+id
             update[route] = energy_task_result[i]
         }
@@ -190,6 +191,7 @@ Meteor.methods({
         if (Meteor.isServer) {
             this.unblock();
             var returned= HTTP.call("POST", "http://127.0.0.1:3527/getarm", data);
+            SimulationTrial.update({workerId, assignmentId, hitId}, {$set:{'Arm':returned.data}})
             return 10+3*(returned.data-1)
           }
     }
