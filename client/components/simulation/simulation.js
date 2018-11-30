@@ -361,6 +361,7 @@ class Simulation extends Component{
                         <div>Time of the day</div>
                         <div>
                             <div style={{'float':'left'}}>9AM</div>
+                            <div style={{}}>12PM</div>
                             <div style={{'float':'right'}}>5PM</div>
                         </div>
                         <div className="progress">
