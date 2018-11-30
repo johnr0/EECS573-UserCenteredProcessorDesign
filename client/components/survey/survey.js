@@ -11,7 +11,7 @@ class Survey extends Component{
         {'music': 'streaming music'},
         {'video': 'streaming videos'},
         {'take/edit_photos_or_videos': 'taking or editing photos or videos'},
-        {'navigate_map': 'navigating with map apps'},
+        {'text_or_email': 'texting or using email app'},
         {'check_calendar_or_notes': 'check calendar and/or nots'},
     ]
     state={
