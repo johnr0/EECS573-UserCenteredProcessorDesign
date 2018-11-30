@@ -156,7 +156,7 @@ class Simulation extends Component{
                     var task_index = this.state.activated_task.indexOf(event.keyCode-49)
                     if(task_index==-1){
                         console.log(this.task)
-                        if(this.energy_task_list[event.keyCode-49].position==false && this.task==undefined){
+                        if(this.energy_task_list[event.keyCode-49].position==false){
                             return this.state.activated_task.push(event.keyCode-49)
                         }
                         if(this.energy_task_list[event.keyCode-49].position!=false && this.energy_task_list[event.keyCode-49].position==this.task){
