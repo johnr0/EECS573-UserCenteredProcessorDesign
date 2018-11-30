@@ -4,6 +4,7 @@ import {Link} from 'react-router-dom';
 import { Meteor } from 'meteor/meteor';
 import { SimulationTrial } from '../../../imports/collections/data';
 
+
 class Survey extends Component{
     tasklist = [
         {'internet': 'browsing social media or internet'},

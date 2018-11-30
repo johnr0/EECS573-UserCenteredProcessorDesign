@@ -78,6 +78,10 @@ Meteor.methods({
 
     },
 
+    'simulationtrial.delete': function(workerId, assignmentId){
+        SimulationTrial.remove({workerId, assignmentId});
+    },
+
     'simulationtrial.settasktime': function(workerId, assignmentId, hitId, id, value){
         var route = 'SurveyResult.tasklist.'+id+'.time'
         var update = {}
@@ -169,6 +173,14 @@ Meteor.methods({
         
         return Maps.update({name:'main'}, { $pull : { charger: pos}})
     
+    },
+
+    'selfevaluation': function(workerId, assignmentId, hitId, id, value){
+        var route = 'SimulationResult.'+id
+        var update = {}
+        update[route] = value
+        console.log(value)
+        SimulationTrial.update({workerId, assignmentId, hitId}, {$set:update})
     },
 
     'getArm': function(workerId, assignmentId, hitId){
