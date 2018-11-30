@@ -359,9 +359,9 @@ class Simulation extends Component{
                     </div>
                     <div className='inline-blocks SApanel'>
                         <div>Time of the day</div>
-                        <div>
+                        <div style={{'position':'relative'}}>
                             <div style={{'float':'left'}}>9AM</div>
-                            <div style={{}}>12PM</div>
+                            <div style={{'position':'absolute', 'display':'inline', 'left':'35%'}}>12PM</div>
                             <div style={{'float':'right'}}>5PM</div>
                         </div>
                         <div className="progress">
