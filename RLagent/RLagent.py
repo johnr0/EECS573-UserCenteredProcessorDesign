@@ -23,4 +23,4 @@ class RLagent(Resource):
 api.add_resource(RLagent, '/getarm')
 
 if __name__=='__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=3529)
