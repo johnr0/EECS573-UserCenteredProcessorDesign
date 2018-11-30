@@ -359,6 +359,10 @@ class Simulation extends Component{
                     </div>
                     <div className='inline-blocks SApanel'>
                         <div>Time of the day</div>
+                        <div>
+                            <div style={{'float':'left'}}>9AM</div>
+                            <div style={{'float':'left'}}>5PM</div>
+                        </div>
                         <div className="progress">
                             <div className="determinate" style={{width:((this.timeout-this.cur_time)/this.timeout*100).toString()+"%"}}></div>
                         </div>
