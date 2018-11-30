@@ -119,7 +119,7 @@ class Simulation extends Component{
         if(this.state.cur_battery>0){
             var battery_diff = this.idle // /this.power_efficiency*50/1000
             this.state.activated_task.map(idx => {
-            this.energy_task_list[idx].accomplished = this.energy_task_list[idx].accomplished+1/this.power_efficiency
+            this.energy_task_list[idx].accomplished = this.energy_task_list[idx].accomplished+2/this.power_efficiency
             battery_diff = battery_diff + this.energy_task_list[idx].energy_usage 
         })
         this.setState({'cur_battery': this.state.cur_battery - battery_diff/this.power_efficiency*50/1000})
