@@ -237,11 +237,11 @@ class Simulation extends Component{
         var topop=[]
         if(this.task!=undefined){
             //pop false task
-            for(var i in this.state.activated_task){
+            /*for(var i in this.state.activated_task){
                 if(this.energy_task_list[this.state.activated_task[i]].position==false){
                     topop.push(i)
                 }
-            }
+            }*/
         }else{
             //pop non-false task
             for(var i in this.state.activated_task){
