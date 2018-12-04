@@ -17,6 +17,7 @@ class Simulation extends Component{
     acceleration_param = 96 * 0.05;
     // battery amount
     battery = 4400
+    battery_state = 0; // warn when it reaches 20% 0%
     // power efficiency (battery amount) / (minute)
     power_efficiency = 7
     // idle energy usage
@@ -102,6 +103,7 @@ class Simulation extends Component{
             _this.handleKeyPress(event)
             
         });
+        Materialize.toast('Now simulation started!',4000)
     }
 
     updateBattery(){
@@ -124,9 +126,24 @@ class Simulation extends Component{
             battery_diff = battery_diff + this.energy_task_list[idx].energy_usage * this.acceleration_param/60/60;
         })
         this.setState({'cur_battery': this.state.cur_battery - battery_diff/this.power_efficiency})
+            if(this.state.cur_battery/this.battery<0.2 && this.battery_state==0){
+                Materialize.toast('You only have 20% of battery!', 4000)
+                this.battery_state=1
+            }
+            if(this.state.cur_battery/this.battery>0.2 && this.battery_state!=0){
+                this.battery_state =0;
+            }else if(this.battery_state==2){
+                this.battery_state =1;
+            }
+
         }else{
             this.state.activated_task=[]
             this.setState({'cur_battery': this.state.cur_battery})
+            if(this.battery_state==1){
+                Materialize.toast('You are running out of battery!',4000)
+                this.battery_state = 2;
+            }
+            
         }
         
         if (this.cur_time<=0 && this.state.end==false){
@@ -185,7 +202,7 @@ class Simulation extends Component{
 
     agent_move(event){
         this.moving = true
-        setTimeout(this.agent_move_handle.bind(this, event),500)
+        setTimeout(this.agent_move_handle.bind(this, event),6/60/60*this.acceleration_param)
         
     }
 
