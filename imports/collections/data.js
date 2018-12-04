@@ -69,6 +69,7 @@ Meteor.methods({
                     successRate:0,
                     batterySatisfaction:0,
                     chargeCount:0,
+                    chargeCountExpectation:0,
                 },
                 
 

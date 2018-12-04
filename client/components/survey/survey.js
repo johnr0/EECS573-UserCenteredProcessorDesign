@@ -46,7 +46,7 @@ class Survey extends Component{
             var id = Object.keys(dict)[0]
             var phrase = dict[id]
             return ( <div key={id} onChange={this.setTaskValue.bind(this, id)}>
-            <h5>For each day, how long do you use your cellphone for {phrase}?</h5>
+            <h5>On an average, how long do you use your cellphone for {phrase} on any given day?</h5>
             <input type='radio' id={id+'_0'} name={id} ref={id+'_0'} value='0'></input>
             <label htmlFor={id+'_0'}>0 hrs</label>
             <input type='radio' id={id+'_1'} name={id} ref={id+'_1'} value='30'></input>

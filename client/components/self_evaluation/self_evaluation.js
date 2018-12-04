@@ -6,6 +6,7 @@ import {Link} from 'react-router-dom';
 class SelfEvaluation extends Component{
     state={
         batterySatisfaction: false,
+        chargeCountExpectation: false,
     }
 
     setTaskValue(id, event){
@@ -35,19 +36,26 @@ class SelfEvaluation extends Component{
                     <h3 style={{'textAlign':'center'}}>
                         User Experience Survey    
                         <div>
-                            <h5>Based on your daily activity, you would have needed to charge {this.props.trial.SimulationResult.chargeCount} times a day</h5>
-                            <h5>How likely are you going to say "I am satisfied with it."?</h5>
+                            <h5>Based on your virtual agent’s phone usage, we predict that you would need to charge your phone {this.props.trial.SimulationResult.chargeCount} times in a day.</h5>
+                            <h5>How satisfied would you be with the phone’s performance?</h5>
                             <div onChange={this.setTaskValue.bind(this,'batterySatisfaction')}>
                                 <input type='radio' id='charge_count_vu' name='charge_count' value='0'></input>
-                                <label htmlFor='charge_count_vu'>Very Unlikely</label>
+                                <label htmlFor='charge_count_vu'>Highly dissatisfied</label>
                                 <input type='radio' id='charge_count_u' name='charge_count' value='1'></input>
-                                <label htmlFor='charge_count_u'>Unlikely</label>
+                                <label htmlFor='charge_count_u'>Dissatisfied</label>
                                 <input type='radio' id='charge_count_n' name='charge_count' value='2'></input>
                                 <label htmlFor='charge_count_n'>Neutral</label>
                                 <input type='radio' id='charge_count_l' name='charge_count' value='3'></input>
-                                <label htmlFor='charge_count_l'>Likely</label>
+                                <label htmlFor='charge_count_l'>Satisfied</label>
                                 <input type='radio' id='charge_count_vl' name='charge_count' value='4'></input>
-                                <label htmlFor='charge_count_vl'>Very Likely</label>
+                                <label htmlFor='charge_count_vl'>Highly satisfied</label>
+                            </div>
+                            <div>
+                                <h5>Based on your phone usage, how many times in a day do you think you would recharge your phone?</h5>
+                                <div className="input-field" style={{'width':'10%', 'margin':'auto'}} onChange={this.setTaskValue.bind(this,'chargeCountExpectation')}> 
+                                <input type='number' id='chargeCountExpectation' name='charge_count_expect' ></input>
+                                <label htmlFor='chargeCountExpectation'>Answer here</label>
+                                </div>
                             </div>
                         </div>
                         <div>

@@ -20,10 +20,13 @@ class Instruction extends Component{
         
         return (<div style={{'textAlign':'center'}}>
             <h4>Instruction</h4>
-            <p>Write your name and proceed to the survey by clicking the button below.</p>
-            <input type='text' ref='workerId' onChange={this.handleworkerId.bind(this)}></input>
+            <p>Write your name BEFORE you proceed to the simulation</p>
+            <div className="input-field">
+                <input id="name" className="validate" type='text' ref='workerId' onChange={this.handleworkerId.bind(this)}></input>
+                <label htmlFor="name">Your Name</label>
+            </div>
             <Link to={'/survey/'+this.state.workerId+'/'+this.state.assignmentId+'/'+this.state.hitId} className="btn"
-            onClick={this.GenerateSimulation.bind(this)}>
+            onClick={this.GenerateSimulation.bind(this)} placeholder="Write your name here">
             Proceed</Link>
         </div>
             

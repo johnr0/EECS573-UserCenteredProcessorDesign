@@ -71,6 +71,7 @@ class Simulation extends Component{
     grid_width = 48
     grid_height = 27
     state={
+        start: false,
         totalwidth:0,
         totalheight:0,
         agentx: 3,
@@ -96,14 +97,7 @@ class Simulation extends Component{
         this.setState({'cur_battery': this.battery})
         this.setState({'totalwidth': parseInt(d3.select('.svg-container').style('width'))})
         this.setState({'totalheight': parseInt(d3.select('.svg-container').style('height'))})
-        var _this=this
-        window.setInterval(this.updateBattery.bind(this), 50)
-        
-        document.body.addEventListener('keydown', function(event) {
-            _this.handleKeyPress(event)
-            
-        });
-        Materialize.toast('Now simulation started!',4000)
+       
     }
 
     updateBattery(){
@@ -176,6 +170,7 @@ class Simulation extends Component{
                         console.log(this.task)
                         if(this.energy_task_list[event.keyCode-49].position==false){
                             return this.state.activated_task.push(event.keyCode-49)
+
                         }
                         //if(this.energy_task_list[event.keyCode-49].position!=false && this.energy_task_list[event.keyCode-49].position==this.task){
                         //    return this.state.activated_task.push(event.keyCode-49)
@@ -261,6 +256,7 @@ class Simulation extends Component{
                 if(this.energy_task_list[i].position==this.task){
                     //topop.push(i)
                     //this.state.activated_task.push(i)
+                    Materialize.toast('Now you are in the class!',4000)
                     this.setState({ activated_task: [...this.state.activated_task, parseInt(i)] })
                     console.log(this.state.activated_task)
                 }
@@ -299,6 +295,7 @@ class Simulation extends Component{
                     <li key={task.name}>
                         <span className={"btn "+(this.state.activated_task.indexOf(index)!=-1 ? 'activated':'deactivated')+" "+(this.state.cur_battery>0 && ((task.position!=false && this.task==task.position)||(task.position==false)) ? '':'disabled')}>
                         {index+1} {task.name}</span>
+                        <span style={{"float":"right"}}>{task.time}min</span>
                         <div className="progress">
                             <div className="determinate" style={{width:(this.energy_task_list[index].accomplished/this.energy_task_list[index].time*100).toString()+"%"}}></div>
                         </div>
@@ -360,10 +357,23 @@ class Simulation extends Component{
         Meteor.call('simulationtrial.updatetaskresult', workerId, assignmentId, hitId, this.energy_task_list)
     }
 
+    startSimulation(){
+        var _this=this
+        this.setState({'start':true});
+        window.setInterval(this.updateBattery.bind(this), 50)
+        
+        document.body.addEventListener('keydown', function(event) {
+            _this.handleKeyPress(event)
+            
+        });
+        Materialize.toast('Now simulation started!',4000)
+    }
+
     render() {
         return (
             <div>
-                <h2>Simulation</h2>
+                <h2 className={this.state.start ? '' : 'Invisible'}>Simulation</h2>
+                <h2 className={'btn '+(this.state.start ? 'Invisible' : '')} onClick={this.startSimulation.bind(this)}>Click this button to start</h2>
                 <div className="">
                     <div className='inline-blocks gridworld'>
                         <svg className="svg-container" width={70} height={35} > 
