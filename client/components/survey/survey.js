@@ -10,9 +10,8 @@ class Survey extends Component{
         {'internet': 'browsing social media or internet'},
         {'music': 'streaming music'},
         {'video': 'streaming videos'},
-        {'take/edit_photos_or_videos': 'taking or editing photos or videos'},
-        {'text_or_email': 'texting or using email app'},
-        {'check_calendar_or_notes': 'check calendar and/or nots'},
+        {'text': 'texting'},
+        {'email': 'using email app'},
     ]
     state={
         age:false,
@@ -20,9 +19,8 @@ class Survey extends Component{
         internet:false,
         music:false,
         video:false,
-        'take/edit_photos_or_videos':false,
-        text_or_email:false,
-        check_calendar_or_notes:false,
+        text:false,
+        email:false,
     }
 
     setTaskValue(id, event){

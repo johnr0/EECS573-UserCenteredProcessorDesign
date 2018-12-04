@@ -11,11 +11,12 @@ import {HTTP} from 'meteor/http';
 
 class Simulation extends Component{
     // time out
-    timeout = 300
+    timeout = 8*60*60;
     cur_time = this.timeout
 
+    acceleration_param = 96 * 0.05;
     // battery amount
-    battery = 10
+    battery = 4400
     // power efficiency (battery amount) / (minute)
     power_efficiency = 7
     // idle energy usage
@@ -60,7 +61,7 @@ class Simulation extends Component{
         },
     ]*/
 
-    charging_speed = 0.5
+    charging_speed = 5000
 
     charging = false
 
@@ -89,7 +90,7 @@ class Simulation extends Component{
         const {workerId, assignmentId, hitId} = this.props.match.params
         var _this = this
         Meteor.call('getArm', workerId, assignmentId, hitId, function(error, result){
-            _this.power_efficiency = result
+            _this.power_efficiency = result/10
         })
         this.setState({'cur_battery': this.battery})
         this.setState({'totalwidth': parseInt(d3.select('.svg-container').style('width'))})
@@ -105,11 +106,11 @@ class Simulation extends Component{
 
     updateBattery(){
         console.log(this.power_efficiency)
-        this.cur_time -= 0.1
+        this.cur_time -= 1 * this.acceleration_param;
 
         // charging?
         if(this.charging){
-            var next_charge = this.state.cur_battery+0.05*this.charging_speed
+            var next_charge = this.state.cur_battery+this.charging_speed * this.acceleration_param / 60 / 60
             if(next_charge>this.battery){
                 next_charge = this.battery
             }
@@ -119,10 +120,10 @@ class Simulation extends Component{
         if(this.state.cur_battery>0){
             var battery_diff = this.idle // /this.power_efficiency*50/1000
             this.state.activated_task.map(idx => {
-            this.energy_task_list[idx].accomplished = this.energy_task_list[idx].accomplished+1.2/this.power_efficiency
-            battery_diff = battery_diff + this.energy_task_list[idx].energy_usage 
+            this.energy_task_list[idx].accomplished = this.energy_task_list[idx].accomplished+1/this.power_efficiency/60* this.acceleration_param;
+            battery_diff = battery_diff + this.energy_task_list[idx].energy_usage * this.acceleration_param/60/60;
         })
-        this.setState({'cur_battery': this.state.cur_battery - battery_diff/this.power_efficiency*50/1000})
+        this.setState({'cur_battery': this.state.cur_battery - battery_diff/this.power_efficiency})
         }else{
             this.state.activated_task=[]
             this.setState({'cur_battery': this.state.cur_battery})
