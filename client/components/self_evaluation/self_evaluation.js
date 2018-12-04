@@ -36,7 +36,7 @@ class SelfEvaluation extends Component{
                     <h3 style={{'textAlign':'center'}}>
                         User Experience Survey    
                         <div>
-                            <h5>Based on your virtual agent’s phone usage, we predict that you would need to charge your phone {this.props.trial.SimulationResult.chargeCount} times in a day.</h5>
+                            <h5>Based on your virtual agent’s phone usage, we predict that you would need to charge your phone between {this.props.trial.SimulationResult.chargeCount-1} and {this.props.trial.SimulationResult.chargeCount+1} times in a day.</h5>
                             <h5>How satisfied would you be with the phone’s performance?</h5>
                             <div onChange={this.setTaskValue.bind(this,'batterySatisfaction')}>
                                 <input type='radio' id='charge_count_vu' name='charge_count' value='0'></input>
