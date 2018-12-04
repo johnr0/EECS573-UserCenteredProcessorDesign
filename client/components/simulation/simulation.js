@@ -160,9 +160,9 @@ class Simulation extends Component{
                         if(this.energy_task_list[event.keyCode-49].position==false){
                             return this.state.activated_task.push(event.keyCode-49)
                         }
-                        if(this.energy_task_list[event.keyCode-49].position!=false && this.energy_task_list[event.keyCode-49].position==this.task){
-                            return this.state.activated_task.push(event.keyCode-49)
-                        }
+                        //if(this.energy_task_list[event.keyCode-49].position!=false && this.energy_task_list[event.keyCode-49].position==this.task){
+                        //    return this.state.activated_task.push(event.keyCode-49)
+                        //}
 
                         
                         // when the task is related to non-playing tasks
@@ -172,7 +172,10 @@ class Simulation extends Component{
                                 }
                         }*/
                     }else{
-                        this.state.activated_task.splice(task_index, 1)
+                        if(this.energy_task_list[event.keyCode-49].position==false){
+                            this.state.activated_task.splice(task_index, 1)
+                    }
+                        
                     }
                 }
                 console.log(this.state.activated_task)
@@ -237,11 +240,14 @@ class Simulation extends Component{
         var topop=[]
         if(this.task!=undefined){
             //pop false task
-            /*for(var i in this.state.activated_task){
-                if(this.energy_task_list[this.state.activated_task[i]].position==false){
-                    topop.push(i)
+            for(var i in this.energy_task_list){
+                if(this.energy_task_list[i].position==this.task){
+                    //topop.push(i)
+                    //this.state.activated_task.push(i)
+                    this.setState({ activated_task: [...this.state.activated_task, parseInt(i)] })
+                    console.log(this.state.activated_task)
                 }
-            }*/
+            }
         }else{
             //pop non-false task
             for(var i in this.state.activated_task){
